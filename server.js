@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const app = express();
 require('dotenv').config()
 const cors = require('cors');
-
+const port = process.env.PORT || 3000
 
 mongoose.connect(process.env.MONGO_URL,
     { 
@@ -24,6 +24,6 @@ app.use('/',require('./controller/createproject/index'))
 
 app.use('/taskreport',require('./controller/task/index'))
 
-app.listen(3000,()=>{console.log("Server Stated on port "+ 3000);})
+app.listen(port,()=>{console.log(`Server Stated on port ${port}`)})
 
 
