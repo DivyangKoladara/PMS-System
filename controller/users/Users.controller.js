@@ -83,10 +83,7 @@ try {
                 expiresIn:"24h"
             }
             )
-            const userdetails = await User.aggregate([
-                {$match:{email:userdata.email}},
-                {$project:{'password':0}}
-            ])
+            const userdetails = await User.findOne({email:userdata.email}).select({"password":0});
             return success(res,userdetails,{"token":token})
         }
         else{
