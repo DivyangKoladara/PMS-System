@@ -18,7 +18,7 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use('/users',require('./controller/users/index'))
+app.use('/',require('./controller/users/index'))
 
 app.use('/',require('./controller/createproject/index'))
 
