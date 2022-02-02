@@ -175,3 +175,38 @@ exports.tokenVerify=async(req,res,next)=>{
         }
     }
 }
+
+
+exports.userDetails=async(req,res)=>{
+    try {
+        let data = req.user
+        const userdata = await User.findOne({email:data.email}).exec()
+            if(userdata.length < 1){
+                return fail(res,{message:["User not found..."]},httpCode.NOT_FOUND)
+            }
+            if(userdata.password === data.password){
+                const token = jwt.sign({
+                    email:userdata.email,
+                    password:userdata.password
+                },
+                'this is usermanagement access key',
+                {
+                    expiresIn:"24h"
+                }
+                )
+                const userdetails = await User.aggregate([
+                    {$match:{email:userdata.email}},
+                    {$project:{'password':0}}
+                ])
+                return success(res,userdetails,{"token":token})
+            }
+            else{
+                return fail(res,{message:["Password does not match..."]},httpCode.NOT_FOUND)
+        }
+    } catch (error) {
+        return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
+    }
+}
+
+
+

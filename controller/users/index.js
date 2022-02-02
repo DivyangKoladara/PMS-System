@@ -10,4 +10,6 @@ router.route('/delete').get(user.tokenVerify,user.deleteUser);
 
 router.route('/edit').post(user.tokenVerify,user.edituser);
 
+router.route('/userdetails').get(user.tokenVerify,user.userDetails);
+
 module.exports = router;
