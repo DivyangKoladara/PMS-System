@@ -68,26 +68,30 @@ try {
     if(validation.fails()){
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST);
     }
-    const useremail = await User.find({email:req.body.email}).exec().then(user=>{
-        if(user.length < 1){
-            return fail(res,{message:[""]})
+    const userdata = await User.findOne({email:data.email}).exec()
+   
+        if(userdata.length < 1){
+            return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
-        if(user[0].password === req.body.password){
+        if(userdata.password === data.password){
             const token = jwt.sign({
-                email:user[0].email,
-                password:user[0].password
+                email:userdata.email,
+                password:userdata.password
             },
             'this is usermanagement access key',
             {
                 expiresIn:"24h"
             }
             )
-            return success(res,token,{"message":"Login Successfully..."})
+            const userdetails = await User.aggregate([
+                {$match:{email:userdata.email}},
+                {$project:{'password':0}}
+            ])
+            return success(res,userdetails,{"token":token})
         }
         else{
             return fail(res,{message:["Password does not match..."]},httpCode.NOT_FOUND)
-        }
-    })
+    }
 } catch (error) {
     return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
 }

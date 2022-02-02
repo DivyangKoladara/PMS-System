@@ -1,8 +1,8 @@
 exports.success = function(res, payload, extra) {
     return res.json({
         status: true,
-        data: payload,
-        ...extra
+        ...extra,
+        data: payload
     });
 }
 

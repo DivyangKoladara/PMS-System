@@ -12,7 +12,7 @@ lastname:{
 },
 
 email:{
-    type:String
+    type:String,
 },
 
 phone:{
@@ -32,7 +32,7 @@ doj:{
 },
 role:{
     type:String,
-    enum:['admin','devloper']
+    enum:['admin','developer']
 },
 status:{
     type:Boolean

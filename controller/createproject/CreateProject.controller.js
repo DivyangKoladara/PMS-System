@@ -52,7 +52,7 @@ exports.editproject = async(req,res)=>{
         let rules={}
         let update={}
         if(!data.projectId){
-            return fail(res,"ProjectId not found...",httpCode.NOT_FOUND)
+            return fail(res,{message:["ProjectId not found..."]},httpCode.NOT_FOUND)
         }
         if(data.name){
             update["name"]=data.name
