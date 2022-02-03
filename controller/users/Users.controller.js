@@ -52,7 +52,7 @@ exports.deleteUser=async(req,res)=>{
         if(!deleteuser){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
-        return success(res,{"message":"User delete Successfully..."})
+        return success(res,{"message":"User deleted Successfully..."})
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
     }
@@ -72,7 +72,6 @@ try {
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST);
     }
     const userdata = await User.findOne({email:data.email}).exec()
-   
         if(userdata.length < 1){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
@@ -103,39 +102,41 @@ exports.edituser=async(req,res)=>{
 
     try {
         const data = req.body
-        let rules={}
+        let rules={
+            "userId":"required"
+        }
         let update = {};
-        if(req.body.firstname){
-            update["firstname"]=req.body.firstname
+        if(data.firstname){
+            update["firstname"]=data.firstname
             rules["firstname"]="required"
         }
-        if(req.body.lastname){
-            update["lastname"]=req.body.lastname
+        if(data.lastname){
+            update["lastname"]=data.lastname
             rules["lastname"]="required"
         }
-        if(req.body.email){
-            update["email"]=req.body.email
+        if(data.email){
+            update["email"]=data.email
             rules["email"]="required|email"
             
         }
-        if(req.body.phone){
-            update['phone']=req.body.phone
+        if(data.phone){
+            update['phone']=data.phone
         }
-        if(req.body.password){
-            update['password']=req.body.password
+        if(data.password){
+            update['password']=await(bcrypt.hash(data.password,10))
             rules["password"]="required"
     
-        }if(req.body.dob){
-            update['dob']=req.body.dob
-        }if(req.body.doj){
-            update['doj']=req.body.doj
+        }if(data.dob){
+            update['dob']=data.dob
+        }if(data.doj){
+            update['doj']=data.doj
         }
-        if(req.body.role){
-            update['role']=req.body.role
+        if(data.role){
+            update['role']=data.role
             rules["role"]="required"
         }
-        if(req.body.status){
-            update['status']=req.body.status
+        if(data.status){
+            update['status']=data.status
             rules["status"]="required|boolean"
             
         }
@@ -143,7 +144,7 @@ exports.edituser=async(req,res)=>{
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
-        let updateStage  = await User.findByIdAndUpdate(req.user._id,update)
+        let updateStage  = await User.findByIdAndUpdate(data.userId,update)
     
         if(updateStage){
             return success(res,{"message":"Update data successfully..."})
@@ -171,7 +172,7 @@ exports.tokenVerify=async(req,res,next)=>{
                     return fail(res,{"message":["User not found..."]},httpCode.NOT_FOUND)
                 }
                 if(decode.password != displaydata.password){
-                    return fail(res,{"message":["password not match..."]},httpCode.NOT_FOUND)
+                    return fail(res,{"message":["Incorrect Password..."]},httpCode.NOT_FOUND)
 
                 }
                 req.user = displaydata ;
@@ -205,7 +206,7 @@ exports.userDetails=async(req,res)=>{
                 return success(res,userdetails,{"token":token})
             }
             else{
-                return fail(res,{message:["Password does not match..."]},httpCode.NOT_FOUND)
+                return fail(res,{message:["Incorrect Password..."]},httpCode.NOT_FOUND)
         }
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
@@ -213,25 +214,25 @@ exports.userDetails=async(req,res)=>{
 }
 
 exports.changepassword=async(req,res)=>{
-   try{
+    try{
        let data = req.body
        let rules={
            currentpassword:"required",
            newpassword:"required",
        }
        const validation = new Validator(data,rules)
-       if(validation.fails){
-           return fail(res,validation.error.all(),httpCode.BAD_REQUEST)
+       if(validation.fails()){
+           return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
        }
-       const ismatch = await bcrypt.compare(currentpassword,req.user.password)
+       const ismatch = await bcrypt.compare(data.currentpassword,req.user.password)
        if(!ismatch){
            return fail(res,{message:["current passsword does not match..."]})
        }
        let update={
-           changepassword:await(bcrypt.hash(data.password,10))
+           password:await(bcrypt.hash(data.newpassword,10))
        }
-       const resetpassword = await User.findByIdAndUpdate(req.user._id,update)
-       console.log(resetpassword);
+        await User.findByIdAndUpdate(req.user._id,update)
+       return success(res,{message:["Password Change successfully..."]})
     } catch (error) {   
         return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
     }
