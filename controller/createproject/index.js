@@ -8,14 +8,16 @@ const storage = multer.diskStorage({
         cb(null,'./upload');
     },
     filename:function(req,file,cb){
-        cb(null. file.originalname)
+        cb(null, file.originalname)
     }
 })
 
-const upload = multer({storage:storage});
 
 
-router.route('/createproject').post(upload.single('file'),user.createProject);
+const upload = multer({storage:storage}).single('projectImage')
+
+
+router.route('/createproject').post(upload,user.createProject);
 
 router.route('/deleteproject').post(user.deleteProject);
 

@@ -7,7 +7,6 @@ const UserSchemam = require('../../models/Users.model')
 
 
 exports.createProject =  async (req,res)=>{
-    console.log(req.file);
     try{
         let data = req.body;
         let rules= {
@@ -21,7 +20,7 @@ exports.createProject =  async (req,res)=>{
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
         const createProject =  new Project({
-            projectImage:req.file,
+            projectImage:req.file.originalname,
             name:req.body.name,
             icon:req.body.icon,
             status:req.body.status,
