@@ -184,7 +184,7 @@ exports.tokenVerify=async(req,res,next)=>{
 }
 
 
-exports.userDetails=async(req,res)=>{
+exports.authUserDetails=async(req,res)=>{
     try {
         let data = req.user
         const userdata = await User.findOne({email:data.email}).exec()

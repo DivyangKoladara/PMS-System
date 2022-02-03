@@ -10,7 +10,7 @@ router.route('/users/delete').get(user.tokenVerify,user.deleteUser);
 
 router.route('/users/edit').put(user.tokenVerify,user.edituser);
 
-router.route('/auth/verify').get(user.tokenVerify,user.userDetails);
+router.route('/auth/verify').get(user.tokenVerify,user.authUserDetails);
 
 router.route('/userlist').get(user.userDetails);
 

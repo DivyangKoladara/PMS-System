@@ -5,19 +5,23 @@ const { fail, httpCode, success } = require("../../services/helper");
 const UserSchemam = require('../../models/Users.model')
 
 
-exports.createProject = async (req,res)=>{
+
+exports.createProject =  async (req,res)=>{
+    console.log(req.file);
     try{
         let data = req.body;
         let rules= {
-            name:"required",
-            icon:"required",
-            status:"required|boolean"
+            // name:"required",
+            // icon:"required",
+            // status:"required|boolean"
+            
         }
         let validation = new Validator(data,rules)
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
         const createProject =  new Project({
+            projectImage:req.file,
             name:req.body.name,
             icon:req.body.icon,
             status:req.body.status,

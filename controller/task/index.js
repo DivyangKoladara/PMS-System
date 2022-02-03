@@ -8,7 +8,7 @@ router.route('/add').post(authontication.tokenVerify,user.addtaskreport)
 
 router.route('/delete').post(authontication.tokenVerify,user.deletetaskreport)
 
-router.route('/edit').post(authontication.tokenVerify,user.edittaskreport)
+router.route('/edit').put(authontication.tokenVerify,user.edittaskreport)
 
 router.route('/filterdata').post(user.filterdata);
 
