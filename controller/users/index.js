@@ -8,7 +8,7 @@ router.route('/users/login').post(user.loginUser);
 
 router.route('/users/delete').get(user.tokenVerify,user.deleteUser);
 
-router.route('/users/edit').post(user.tokenVerify,user.edituser);
+router.route('/users/edit').put(user.tokenVerify,user.edituser);
 
 router.route('/auth/verify').get(user.tokenVerify,user.userDetails);
 
