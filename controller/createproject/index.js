@@ -1,23 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const user = require('./CreateProject.controller')
-const multer = require('multer');
 
-const storage = multer.diskStorage({
-    destination: function (req,file,cb){
-        cb(null,'./upload');
-    },
-    filename:function(req,file,cb){
-        cb(null, file.originalname)
-    }
-})
+const upload = require('../../services/CloudnaryImageServices')
+// const multer = require('multer');
 
-
-
-const upload = multer({storage:storage}).single('projectImage')
+// const storage = multer.diskStorage({
+//     destination: function (req,file,cb){
+//         cb(null,'./upload');
+//     },
+//     filename:function(req,file,cb){
+//         cb(null, file.originalname)
+//     }
+// })
 
 
-router.route('/createproject').post(upload,user.createProject);
+
+// const upload = multer({storage:storage}).single('projectImage')
+
+
+router.route('/createproject').post(upload.upload.single('image'),user.createProject);
 
 router.route('/deleteproject').post(user.deleteProject);
 

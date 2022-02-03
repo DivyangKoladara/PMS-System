@@ -15,7 +15,7 @@ const CreateProjectSchema = new Mongoose.Schema({
     status:{
         type:Boolean
     },
-    projectImage:{
+    image:{
         type:String
     },
     assignUsers :[UserItemSchema]

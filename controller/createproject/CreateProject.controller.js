@@ -6,21 +6,26 @@ const UserSchemam = require('../../models/Users.model')
 
 
 
+// cloudinary.config({ 
+//     cloud_name: 'dzk5cklnn', 
+//     api_key: '553593565395133', 
+//     api_secret: 'Jc_XwlcT1uVbevcoHh4wa-5MXjo' 
+//   });
+
 exports.createProject =  async (req,res)=>{
     try{
         let data = req.body;
         let rules= {
             name:"required",
             icon:"required",
-            status:"required|boolean"
-            
+            status:"required|boolean",
         }
         let validation = new Validator(data,rules)
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
         const createProject =  new Project({
-            projectImage:req.file.originalname,
+            image:req.file.originalname,
             name:req.body.name,
             icon:req.body.icon,
             status:req.body.status,
