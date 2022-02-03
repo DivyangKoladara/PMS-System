@@ -12,4 +12,8 @@ router.route('/users/edit').post(user.tokenVerify,user.edituser);
 
 router.route('/auth/verify').get(user.tokenVerify,user.userDetails);
 
+router.route('/userlist').get(user.userDetails);
+
+router.route('/users/forgotpassword').put(user.tokenVerify,user.changepassword);
+
 module.exports = router;

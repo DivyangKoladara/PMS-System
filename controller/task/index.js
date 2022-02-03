@@ -10,4 +10,6 @@ router.route('/delete').post(authontication.tokenVerify,user.deletetaskreport)
 
 router.route('/edit').post(authontication.tokenVerify,user.edittaskreport)
 
+router.route('/filterdata').post(user.filterdata);
+
 module.exports = router;

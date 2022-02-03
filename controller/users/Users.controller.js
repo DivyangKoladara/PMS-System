@@ -2,9 +2,12 @@ const Validator = require('validatorjs')
 const { fail, httpCode, success } = require('../../services/helper')
 const User = require('../../models/Users.model')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs');
+
 
 exports.addUser=async(req,res)=>{
 
+    
     try {
         let data = req.body
         let rules = {
@@ -24,15 +27,15 @@ exports.addUser=async(req,res)=>{
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
     }
     const adduser = new User({
-        firstname:req.body.firstname,
-        lastname:req.body.lastname,
-        email:req.body.email,
-        phone:req.body.phone,
-        password:req.body.password,
-        dob:req.body.dob,
-        doj:req.body.doj,
-        role:req.body.role,
-        status:req.body.status,
+        firstname:data.firstname,
+        lastname:data.lastname,
+        email:data.email,
+        phone:data.phone,
+        password:await(bcrypt.hash(data.password, 10)),
+        dob:data.dob,
+        doj:data.doj,
+        role:data.role,
+        status:data.status,
     })
     await adduser.save();
     return success(res,{"message":"User add successfully..."})
@@ -73,7 +76,8 @@ try {
         if(userdata.length < 1){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
-        if(userdata.password === data.password){
+        const ismatch = await bcrypt.compare(data.password,userdata.password)
+        if(ismatch){
             const token = jwt.sign({
                 email:userdata.email,
                 password:userdata.password
@@ -86,6 +90,7 @@ try {
             const userdetails = await User.findOne({email:userdata.email}).select({"password":0});
             return success(res,userdetails,{"token":token})
         }
+        
         else{
             return fail(res,{message:["Password does not match..."]},httpCode.NOT_FOUND)
     }
@@ -165,6 +170,10 @@ exports.tokenVerify=async(req,res,next)=>{
                 if(!displaydata){
                     return fail(res,{"message":["User not found..."]},httpCode.NOT_FOUND)
                 }
+                if(decode.password != displaydata.password){
+                    return fail(res,{"message":["password not match..."]},httpCode.NOT_FOUND)
+
+                }
                 req.user = displaydata ;
                 next();
         } catch (error) {
@@ -203,5 +212,33 @@ exports.userDetails=async(req,res)=>{
     }
 }
 
+exports.changepassword=async(req,res)=>{
+   try{
+       let data = req.body
+       let rules={
+           currentpassword:"required",
+           newpassword:"required",
+       }
+       const validation = new Validator(data,rules)
+       if(validation.fails){
+           return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+       }
+       let update={
+           changepassword:await(bcrypt.hash(data.password,10))
+       }
+       const resetpassword = await User.findByIdAndUpdate(req.user._id,update)
+       console.log(resetpassword);
+    } catch (error) {   
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+    }
+}
 
 
+exports.userDetails=async(req,res)=>{
+    try {
+        const userdetails = await User.find()
+        return success(res,userdetails);
+    } catch (error) {
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+    }
+}

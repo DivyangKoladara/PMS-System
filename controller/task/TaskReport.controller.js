@@ -131,3 +131,42 @@ exports.edittaskreport=async(req,res)=>{
        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
     }
 }
+
+
+exports.filterdata=async(req,res)=>{
+    let data = req.body
+    const startdate = new Date(data.startdate);
+    const enddate = new Date(data.enddate);
+
+    const taskdata = await Task_ReposrtSchema.aggregate([
+        {$match:
+            {date:{
+            $gte: startdate,
+            $lte: enddate,
+        }}},
+        
+        {
+            $lookup:{
+                from:'users',
+                localField:'user_id',
+                foreignField:'_id',
+                as:"userdetails"
+            }
+        },
+        {
+            $unwind:"$userdetails"
+        }
+        // {
+        //      $project: { 
+        //          filter: {
+        //                 input: "$tasks",
+        //                 as: "item",
+        //                 cond: dateCondition
+        //                 } 
+            
+            
+        // }}
+    ]
+    )  
+    return res.send(taskdata)
+}
