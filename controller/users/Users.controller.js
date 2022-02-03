@@ -221,7 +221,11 @@ exports.changepassword=async(req,res)=>{
        }
        const validation = new Validator(data,rules)
        if(validation.fails){
-           return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+           return fail(res,validation.error.all(),httpCode.BAD_REQUEST)
+       }
+       const ismatch = await bcrypt.compare(currentpassword,req.user.password)
+       if(!ismatch){
+           return fail(res,{message:["current passsword does not match..."]})
        }
        let update={
            changepassword:await(bcrypt.hash(data.password,10))
