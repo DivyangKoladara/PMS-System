@@ -10,9 +10,9 @@ exports.createProject =  async (req,res)=>{
     try{
         let data = req.body;
         let rules= {
-            // name:"required",
-            // icon:"required",
-            // status:"required|boolean"
+            name:"required",
+            icon:"required",
+            status:"required|boolean"
             
         }
         let validation = new Validator(data,rules)
