@@ -29,4 +29,6 @@ router.route('/assignproject').post(user.assignProject);
 
 router.route('/projectassigndetails').get(user.projectAssignDetails);
 
+router.route('/projectlist').get(user.projectList)
+
 module.exports =router;   

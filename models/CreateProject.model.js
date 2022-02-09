@@ -9,9 +9,6 @@ const CreateProjectSchema = new Mongoose.Schema({
     name:{
         type:String
     },
-    icon:{
-        type:String
-    },
     status:{
         type:Boolean
     },

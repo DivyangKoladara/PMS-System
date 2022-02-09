@@ -3,7 +3,7 @@ const Validator = require("validatorjs");
 const Project = require("../../models/CreateProject.model");
 const { fail, httpCode, success } = require("../../services/helper");
 const UserSchemam = require('../../models/Users.model')
-
+const image = require('../../services/CloudnaryImageServices')
 
 
 // cloudinary.config({ 
@@ -13,25 +13,29 @@ const UserSchemam = require('../../models/Users.model')
 //   });
 
 exports.createProject =  async (req,res)=>{
+
+    console.log(req.file);
     try{
         let data = req.body;
-        let rules= {
-            name:"required",
-            icon:"required",
-            status:"required|boolean",
-        }
-        let validation = new Validator(data,rules)
-        if(validation.fails()){
-            return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
-        }
+        console.log("body",req.file);
+        // let rules= {
+        //     name:"required",
+        //     status:"required|boolean",
+        // }
+        // let validation = new Validator(data,rules)
+        // if(validation.fails()){
+        //     return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+        // }
+
         const createProject =  new Project({
-            image:req.file.originalname,
+            image:req.file.path,
             name:req.body.name,
-            icon:req.body.icon,
             status:req.body.status,
         })
         await createProject.save();
+        
         return success(res,{"message":"Project created successfully..."})
+        
     } catch (error) {
         return fail(res,{"message":[error.massage]},httpCode.BAD_REQUEST)
     }
@@ -201,3 +205,15 @@ exports.projectAssignDetails=async(req,res)=>{
 }   
 
 
+exports.projectList=async(req,res)=>{
+
+    try {
+        const data = await Project.find()
+        if(!data){
+            return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
+        }
+        return success(res,data)
+    } catch (error) {
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+    }
+}

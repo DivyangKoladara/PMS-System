@@ -13,26 +13,24 @@ cloudinary.config({
   api_secret: 'Jc_XwlcT1uVbevcoHh4wa-5MXjo' 
 });
 
+
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "pms_image",
-  },
-});
+  },})
 
 const upload = multer({ storage: storage });
 exports.upload = multer({ storage: storage });
 
-
-exports.singleImageDelete = async function (Image) {
-  Image = 'homeview/qqd3vfr8mawycpblfo65';
-  console.log("Image", Image);
+exports.singleImageDelete = async function () {
+  
   try {
     let options = storage;
     // cloudinary.uploader.destroy(Image, function (result) { console.log("result", result) });
      
-    await cloudinary.uploader.destroy(Image, (error, result) => {
-      console.log(result); // { result: 'ok' }
+    await cloudinary.uploader.destroy(public_id, (error, result) => {
+      console.log("result",result); // { result: 'ok' }
       console.log(error);  
 });
   } catch (error) {
