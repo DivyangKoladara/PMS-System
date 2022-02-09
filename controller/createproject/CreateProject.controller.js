@@ -3,7 +3,7 @@ const Validator = require("validatorjs");
 const Project = require("../../models/CreateProject.model");
 const { fail, httpCode, success } = require("../../services/helper");
 const UserSchemam = require('../../models/Users.model')
-const cloudinary = require('cloudinary').v2;
+const cloudinary = require('../../services/imageupload/cloudinary')
 
 
 
@@ -19,21 +19,19 @@ exports.createProject =  async (req,res)=>{
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
-        const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image",})
-        if(!imagedata){
-            return fail(res,{message:["image not selected..."]},httpCode.BAD_REQUEST)
-        }
-        const createProject =  new Project({
-            name:req.body.name,
-            status:req.body.status,
-            image:imagedata.url,
-            image_id:imagedata.public_id
-        })
-        await createProject.save();
-        return success(res,{"message":"Project created successfully..."})
+            const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image"})    
+            const createProject =  new Project({
+                name:req.body.name,
+                status:req.body.status,
+                image:imagedata.url,
+                image_id:imagedata.public_id
+            })
+            await createProject.save();
+            return success(res,{"message":"Project created successfully..."})
+      
         
     } catch (error) {
-        return fail(res,{"message":[error.massage]},httpCode.BAD_REQUEST)
+        return fail(res,{"message":[error.massage]},httpCode.NOT_FOUND)
     }
 }
 
