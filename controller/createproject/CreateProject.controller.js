@@ -50,10 +50,12 @@ exports.deleteProject = async(req,res)=>{
             return fail(res,{message:["Id not found..."]},httpCode.BAD_REQUEST)
         }
         const projectId = Mongoose.Types.ObjectId(req.body.projectId);
+        const deletProjectDetails = await Project.findById({_id:projectId})
         const deleteproject = await Project.findByIdAndRemove({_id:projectId})
         if(!deleteproject){
             return fail(res,{message:["Project not found..."]})
         }
+        await cloudinary.uploader.destroy(deletProjectDetails.image_id);
         return success(res,{"message":"Project deleted successfully..."})
 
     } catch (error) {

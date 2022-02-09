@@ -3,7 +3,7 @@ const path = require('path');
 const cloudinary = require('cloudinary').v2;
 
 
-
+// image upload
 exports.imageupload=async(req,res)=>{
     try {
         const data = await cloudinary.uploader.upload(req.file.path)
@@ -14,6 +14,8 @@ exports.imageupload=async(req,res)=>{
 }
 
 
+
+//image delete
 exports.imagedelete= async(req,res)=>{    
     try {
         const public_id = "capvu3yfrpv9ikrp7hvp"
