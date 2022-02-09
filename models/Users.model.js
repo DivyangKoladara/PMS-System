@@ -36,6 +36,12 @@ role:{
 },
 status:{
     type:Boolean
+},
+url:{
+    type:String
+},
+image_id:{
+    type:String
 }
 
 })

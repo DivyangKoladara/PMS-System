@@ -1,8 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const user = require('./Users.controller')
+const upload = require('../../services/imageupload/multer')
 
-router.route('/users/add').post(user.addUser); 
+
+
+
+
+router.route('/users/add').post(upload.single('image'),user.addUser); 
 
 router.route('/users/login').post(user.loginUser);
 

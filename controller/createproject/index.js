@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const user = require('./CreateProject.controller')
 
-const image = require('../../services/CloudnaryImageServices')
-
 // image
 const imageindex = require('../../services/imageupload/index')
 

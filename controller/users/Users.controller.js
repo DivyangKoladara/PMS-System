@@ -3,11 +3,13 @@ const { fail, httpCode, success } = require('../../services/helper')
 const User = require('../../models/Users.model')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
+const cloudinary = require('cloudinary').v2;
+
+
 
 
 exports.addUser=async(req,res)=>{
 
-    
     try {
         let data = req.body
         let rules = {
@@ -26,6 +28,9 @@ exports.addUser=async(req,res)=>{
     if(validation.fails()){
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
     }
+
+    const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_user_image"})
+ 
     const adduser = new User({
         firstname:data.firstname,
         lastname:data.lastname,
@@ -36,6 +41,8 @@ exports.addUser=async(req,res)=>{
         doj:data.doj,
         role:data.role,
         status:data.status,
+        url:imagedata.url,
+        image_id:imagedata.public_id
     })
     await adduser.save();
     return success(res,{"message":"User add successfully..."})
@@ -48,10 +55,12 @@ exports.addUser=async(req,res)=>{
 
 exports.deleteUser=async(req,res)=>{   
     try {
+        const deleteuserdetails = await User.findById({_id:req.user._id})
         const deleteuser = await User.findByIdAndRemove(req.user._id)
         if(!deleteuser){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
+        await cloudinary.uploader.destroy(deleteuserdetails.image_id);
         return success(res,{"message":"User deleted Successfully..."})
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)

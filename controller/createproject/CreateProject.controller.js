@@ -3,24 +3,13 @@ const Validator = require("validatorjs");
 const Project = require("../../models/CreateProject.model");
 const { fail, httpCode, success } = require("../../services/helper");
 const UserSchemam = require('../../models/Users.model')
-const image = require('../../services/CloudnaryImageServices')
 const cloudinary = require('cloudinary').v2;
 
 
 
-// cloudinary.config({ 
-//     cloud_name: 'dzk5cklnn', 
-//     api_key: '553593565395133', 
-//     api_secret: 'Jc_XwlcT1uVbevcoHh4wa-5MXjo' 
-//   });
-
 exports.createProject =  async (req,res)=>{  
     try{
-        const imagedata = await cloudinary.uploader.upload(req.file.path)
-        if(!imagedata){
-            return fail(res,{message:["image not selected..."]},httpCode.BAD_REQUEST)
-        }
-
+    
         let data = req.body;
         let rules= {
             name:"required",
@@ -29,6 +18,10 @@ exports.createProject =  async (req,res)=>{
         let validation = new Validator(data,rules)
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+        }
+        const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image",})
+        if(!imagedata){
+            return fail(res,{message:["image not selected..."]},httpCode.BAD_REQUEST)
         }
         const createProject =  new Project({
             name:req.body.name,
@@ -195,6 +188,10 @@ exports.projectAssignDetails=async(req,res)=>{
                "UserDetails.doj":0,
                "UserDetails.role":0,
                "UserDetails.status":0,
+               "UserDetails._id":0,
+               "UserDetails.email":0,
+               "UserDetails.image_id":0,
+               "UserDetails.phone":0
             }
         }
         ])

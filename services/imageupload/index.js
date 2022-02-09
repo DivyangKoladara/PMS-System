@@ -6,7 +6,9 @@ const cloudinary = require('cloudinary').v2;
 // image upload
 exports.imageupload=async(req,res)=>{
     try {
-        const data = await cloudinary.uploader.upload(req.file.path)
+        const data = await cloudinary.uploader.upload(req.file.path,params= {
+            folder: "pms_image",
+          })
         req.imagedata = data
     } catch (error) {
         res.send(error)
