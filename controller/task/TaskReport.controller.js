@@ -170,3 +170,39 @@ exports.filterdata=async(req,res)=>{
     )  
     return res.send(taskdata)
 }
+
+
+
+
+exports.taskWithProjectDetails=async(req,res)=>{
+   try {
+    const taskdata = await Task_ReposrtSchema.aggregate([
+        {
+            $lookup:{
+                from:'projects',
+                localField:'project_id',
+                foreignField:'_id',
+                as:"projectdetails"
+            }
+        },
+        {
+            $unwind:'$projectdetails'
+        },
+        {
+            $project:{
+                project_id:0
+            }
+        }
+    ]
+    )  
+    if(!taskdata){
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+    }   
+    return success(res,taskdata)
+
+   } catch (error) {
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)     
+   }
+   
+   
+}

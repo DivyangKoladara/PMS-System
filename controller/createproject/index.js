@@ -2,24 +2,17 @@ const express = require("express");
 const router = express.Router();
 const user = require('./CreateProject.controller')
 
-const upload = require('../../services/CloudnaryImageServices')
-// const multer = require('multer');
+const image = require('../../services/CloudnaryImageServices')
 
-// const storage = multer.diskStorage({
-//     destination: function (req,file,cb){
-//         cb(null,'./upload');
-//     },
-//     filename:function(req,file,cb){
-//         cb(null, file.originalname)
-//     }
-// })
+// image
+const imageindex = require('../../services/imageupload/index')
+
+const upload = require('../../services/imageupload/multer')
 
 
 
-// const upload = multer({storage:storage}).single('projectImage')
 
-
-router.route('/createproject').post(upload.upload.single('image'),user.createProject);
+router.route('/createproject').post(upload.single('image'),user.createProject);
 
 router.route('/deleteproject').post(user.deleteProject);
 
@@ -30,5 +23,14 @@ router.route('/assignproject').post(user.assignProject);
 router.route('/projectassigndetails').get(user.projectAssignDetails);
 
 router.route('/projectlist').get(user.projectList)
+
+
+
+//image delete
+router.route('/imagedelete').get(imageindex.imagedelete);
+
+//image upload
+router.route('/imageupload').post(upload.single('image'),imageindex.imageupload);
+
 
 module.exports =router;   

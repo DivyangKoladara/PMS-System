@@ -4,6 +4,8 @@ const Project = require("../../models/CreateProject.model");
 const { fail, httpCode, success } = require("../../services/helper");
 const UserSchemam = require('../../models/Users.model')
 const image = require('../../services/CloudnaryImageServices')
+const cloudinary = require('cloudinary').v2;
+
 
 
 // cloudinary.config({ 
@@ -12,28 +14,29 @@ const image = require('../../services/CloudnaryImageServices')
 //     api_secret: 'Jc_XwlcT1uVbevcoHh4wa-5MXjo' 
 //   });
 
-exports.createProject =  async (req,res)=>{
-
-    console.log(req.file);
+exports.createProject =  async (req,res)=>{  
     try{
-        let data = req.body;
-        console.log("body",req.file);
-        // let rules= {
-        //     name:"required",
-        //     status:"required|boolean",
-        // }
-        // let validation = new Validator(data,rules)
-        // if(validation.fails()){
-        //     return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
-        // }
+        const imagedata = await cloudinary.uploader.upload(req.file.path)
+        if(!imagedata){
+            return fail(res,{message:["image not selected..."]},httpCode.BAD_REQUEST)
+        }
 
+        let data = req.body;
+        let rules= {
+            name:"required",
+            status:"required|boolean",
+        }
+        let validation = new Validator(data,rules)
+        if(validation.fails()){
+            return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+        }
         const createProject =  new Project({
-            image:req.file.path,
             name:req.body.name,
             status:req.body.status,
+            image:imagedata.url,
+            image_id:imagedata.public_id
         })
         await createProject.save();
-        
         return success(res,{"message":"Project created successfully..."})
         
     } catch (error) {

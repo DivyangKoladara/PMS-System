@@ -2,8 +2,8 @@ const multer = require("multer");
 const path = require("path");
 const express = require("express");
 const app = express();
-
 const cloudinary = require("cloudinary").v2;
+
 const { CloudinaryStorage } = require("multer-storage-cloudinary"); 
 
 
@@ -23,13 +23,19 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 exports.upload = multer({ storage: storage });
 
+
+
+
+
+
+
 exports.singleImageDelete = async function () {
   
   try {
     let options = storage;
     // cloudinary.uploader.destroy(Image, function (result) { console.log("result", result) });
      
-    await cloudinary.uploader.destroy(public_id, (error, result) => {
+    await cloudinary.uploader.destroy("rprvi4i7xyvelboad4pe", (error, result) => {
       console.log("result",result); // { result: 'ok' }
       console.log(error);  
 });

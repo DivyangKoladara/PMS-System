@@ -15,6 +15,9 @@ const CreateProjectSchema = new Mongoose.Schema({
     image:{
         type:String
     },
+    image_id:{
+        type:String
+    },
     assignUsers :[UserItemSchema]
 })
 
