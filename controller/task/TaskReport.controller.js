@@ -190,7 +190,22 @@ exports.taskWithProjectDetails=async(req,res)=>{
         },
         {
             $project:{
-                project_id:0
+                project_id:0,
+                "projectdetails.assignUsers":0
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"user_id",
+                foreignField:"_id",
+                as:"UserDetails"
+            }
+        },
+        {
+            $project:{
+                user_id:0,
+                "UserDetails.password":0
             }
         }
     ]

@@ -12,6 +12,6 @@ router.route('/edit').put(authontication.tokenVerify,user.edittaskreport)
 
 router.route('/filterdata').post(user.filterdata);
 
-router.route('/taskwithprojectdetails').get(user.taskWithProjectDetails)
+router.route('/list').get(user.taskWithProjectDetails)
 
 module.exports = router;

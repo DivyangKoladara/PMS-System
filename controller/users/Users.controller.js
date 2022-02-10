@@ -29,10 +29,10 @@ exports.addUser=async(req,res)=>{
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
     }
     if(!(req.file)){
-        return fail(res,{message:["User image not found"]},httpCode.BAD_REQUEST)
-    }
+        return fail(res,{message:["profile picture must be upload..."]},httpCode.BAD_REQUEST)
+     }
+
     const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_user_image"})
-    
     const adduser =  new User({
         firstname:data.firstname,
         lastname:data.lastname,
