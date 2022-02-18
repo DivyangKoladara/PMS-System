@@ -11,7 +11,7 @@ router.route('/users/add').post(upload.single('image'),user.addUser);
 
 router.route('/users/login').post(user.loginUser);
 
-router.route('/users/delete').get(user.tokenVerify,user.deleteUser);
+router.route('/users/delete').post(user.tokenVerify,user.deleteUser);
 
 router.route('/users/edit').put(upload.single('image'),user.tokenVerify,user.edituser);
 
