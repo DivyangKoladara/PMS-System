@@ -37,12 +37,12 @@ role:{
 status:{
     type:Boolean
 },
-url:{
+image:{
     type:String
 },
-image_id:{
-    type:String
-}
+// image_id:{
+//     type:String
+// }
 
 })
 

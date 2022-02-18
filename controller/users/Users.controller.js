@@ -28,11 +28,10 @@ exports.addUser=async(req,res)=>{
     if(validation.fails()){
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
     }
-    if(!(req.file)){
-        return fail(res,{message:["profile picture must be upload..."]},httpCode.BAD_REQUEST)
-     }
-
+    if(req.file){
     const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_user_image"})
+    }
+    const filename = req.file ? imagedata.url : "";
     const adduser =  new User({
         firstname:data.firstname,
         lastname:data.lastname,
@@ -43,8 +42,8 @@ exports.addUser=async(req,res)=>{
         doj:data.doj,
         role:data.role,
         status:data.status,
-        url:imagedata.url,
-        image_id:imagedata.public_id
+        image:filename,
+        // image_id:imagedata.public_id
     })
     await adduser.save();
     return success(res,{"message":"User add successfully..."})
@@ -57,12 +56,15 @@ exports.addUser=async(req,res)=>{
 
 exports.deleteUser=async(req,res)=>{   
     try {
+
         const deleteuserdetails = await User.findById({_id:req.user._id})
-        const deleteuser = await User.findByIdAndRemove(req.user._id)
-        if(!deleteuser){
+        if(!deleteuserdetails){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
-        await cloudinary.uploader.destroy(deleteuserdetails.image_id);
+        const imagename = deleteuserdetails.image.substring(deleteuserdetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+        let image_id = "pms_project_image/"+imagename ;
+        const deleteuser = await User.findByIdAndRemove(req.user._id)
+        await cloudinary.uploader.destroy(image_id);
         return success(res,{"message":"User deleted Successfully..."})
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
@@ -151,12 +153,23 @@ exports.edituser=async(req,res)=>{
             rules["status"]="required|boolean"
             
         }
+        if(req.file){
+            const imageremove = await User.findById(data.userId)
+            const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+            let image_id = "pms_user_image/"+imagename ;
+            if(imageremove.image){
+                await cloudinary.uploader.destroy(image_id);
+            }
+            const imagedata = await cloudinary.uploader.upload(req.file.path,params={folder: "pms_user_image"})
+            if(imagedata){
+                update['image']=imagedata.url
+            }
+        }
         let validation = new Validator(data,rules)
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
         let updateStage  = await User.findByIdAndUpdate(data.userId,update)
-    
         if(updateStage){
             return success(res,{"message":"Update data successfully..."})
         }           

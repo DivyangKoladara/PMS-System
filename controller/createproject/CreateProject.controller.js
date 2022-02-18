@@ -19,15 +19,14 @@ exports.createProject =  async (req,res)=>{
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
-        if(!(req.file)){
-           return fail(res,{message:["profile picture must be upload"]},httpCode.BAD_REQUEST)
+        if(req.file){
+            const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image"})  
         }
-            const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image"})   
-            const createProject =  new Project({
+        const filename = req.file ? imagedata.url : "";   
+                const createProject =  new Project({
                 name:req.body.name,
                 status:req.body.status,
-                image:imagedata.url,
-                image_id:imagedata.public_id
+                image:filename,
             }) 
             await createProject.save();
             return success(res,{"message":"Project created successfully..."})    
@@ -43,13 +42,14 @@ exports.deleteProject = async(req,res)=>{
         }
         const projectId = Mongoose.Types.ObjectId(req.body.projectId);
         const deletProjectDetails = await Project.findById({_id:projectId})
-        const deleteproject = await Project.findByIdAndRemove({_id:projectId})
-        if(!deleteproject){
+        const imagename = deletProjectDetails.image.substring(deletProjectDetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+        let image_id = "pms_project_image/"+imagename ;
+        if(!deletProjectDetails){
             return fail(res,{message:["Project not found..."]})
         }
-        await cloudinary.uploader.destroy(deletProjectDetails.image_id);
+        const deleteproject = await Project.findByIdAndRemove({_id:projectId})
+        await cloudinary.uploader.destroy(image_id);
         return success(res,{"message":"Project deleted successfully..."})
-
     } catch (error) {
         return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
     }
@@ -75,6 +75,18 @@ exports.editproject = async(req,res)=>{
             update['status']=data.status
             rules['status']='required|boolean'
         }
+        if(req.file){
+            const imageremove = await Project.findById(data.projectId)
+            const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+            let image_id = "pms_user_image/"+imagename ;
+            if(imageremove.image){
+                await cloudinary.uploader.destroy(image_id);    
+            }
+            const imagedata = await cloudinary.uploader.upload(req.file.path,params={folder: "pms_project_image"})
+            if(imagedata){
+                update['image']=imagedata.url
+            }
+        }
         const validation = new Validator(data,rules)
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
@@ -88,6 +100,7 @@ exports.editproject = async(req,res)=>{
     } catch (error) {   
         return fail(res,{message:[error.massage]},httpCode.BAD_REQUEST)
     }
+    
 }
 
 
@@ -96,41 +109,45 @@ exports.assignProject=async(req,res)=>{
     let data = req.body;
     try {
         const projectId = Mongoose.Types.ObjectId(data.projectId);
-        const userId = Mongoose.Types.ObjectId(data.userId);
+        // const userId = Mongoose.Types.ObjectId(data.userId);
+
         const findProject = await Project.findById({_id:projectId})
         if(!findProject){
-        return fail(res,"Project Not Found...",httpCode.BAD_REQUEST)
+        return fail(res,{message:["Project Not Found..."]},httpCode.BAD_REQUEST)
         }
-        const findUser = await UserSchemam.findById({_id:userId})
-        if(!findUser){
-        return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
-        }
+        // const findUser = await UserSchemam.findById({_id:userId})
+        // if(!findUser){
+        // return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
+        // }
         if(data.user === 'add'){
-        const addelement = await Project.findByIdAndUpdate({_id:projectId},{$push:{
-        assignUsers:[{userId:userId}]
-        }})
-        return success(res,{message:"user assign successfully..."})
+                data.userId.map(async(user)=>{
+                    
+                        const addelement = await Project.findByIdAndUpdate({_id:projectId},{$push:{
+                        assignUsers:[{userId:user}]
+                        }})
+                })
+        return success(res,"user assign successfully...")
         }
           
-        // const removeuser = await Project.findById(_id)
-        // let arr = removeuser.assignUsers
-        // const removeelement =  arr.filter(i=>i._id != data.userId);
-        // if(!removeelement){
-        //     return fail(res,{message:["User not login..."]},httpCode.NOT_FOUND)
-        // }
-        // const deleteddata1 = await Project.findByIdAndUpdate(_id,{assignUsers:removeelement})
 
         if(data.user === 'remove'){
-        const deleteuser = await Project.updateOne(
-            { _id: projectId },
-            {
-              $pull: { assignUsers:{userId} }
-            }
-          );
-        return success(res,{message:"retain user successsfull..."})
+
+            data.userId.map(async(user)=>{
+                    
+                let userId = Mongoose.Types.ObjectId(user);
+
+                const deleteuser = await Project.updateOne(
+                    { _id: projectId },
+                    {
+                      $pull: {assignUsers:{userId}}
+                    }
+                  );
+            })
+       
+        return success(res,"retain user successsfull...")
     }
     } catch (error) {
-        return fail(res,{message:[error.massage]},httpCode.BAD_REQUEST)   
+        return fail(res,{message:["dksdfhhjfhs"]},httpCode.BAD_REQUEST)   
     }
 }
 
@@ -165,19 +182,20 @@ exports.projectAssignDetails=async(req,res)=>{
         },
         // // grouping to same data using push opration
         {
-            $group:{
-                _id:"$_id",
-                root:{ $mergeObjects: '$$ROOT' },
-                UserDetails: {$push:"$UserDetails" } 
-            }
-        },
-        {
             $replaceRoot: {
                 newRoot: {
                     $mergeObjects: ['$root', '$$ROOT']
                 }
             }
         },
+        {
+            $group:{
+                _id:"$_id",
+                root:{ $mergeObjects: '$$ROOT' },
+                UserDetails: {$push:"$UserDetails" } 
+            }
+        },
+        
         {
             $project:{
                "root":0,
@@ -209,7 +227,29 @@ exports.projectAssignDetails=async(req,res)=>{
 exports.projectList=async(req,res)=>{
 
     try {
-        const data = await Project.find()
+        const data = await Project.aggregate([
+            {
+                $lookup:{
+                    from:"users",
+                    localField:"assignUsers.userId",
+                    foreignField:"_id",
+                    as:"assignUsers"
+                }
+            },
+            {
+                $project:{
+                    "assignUsers._id":0,
+                    "assignUsers.image_id":0,
+                    "assignUsers.status":0,
+                    "assignUsers.role":0,
+                    "assignUsers.doj":0,
+                    "assignUsers.dob":0,
+                    "assignUsers.password":0,
+                    "assignUsers.phone":0,
+                    "assignUsers.email":0,
+                }
+            }
+        ])
         if(!data){
             return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
         }
