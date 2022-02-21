@@ -19,8 +19,9 @@ exports.createProject =  async (req,res)=>{
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
+        let imagedata;
         if(req.file){
-            const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image"})  
+             imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_project_image"}) 
         }
         const filename = req.file ? imagedata.url : "";   
                 const createProject =  new Project({
@@ -42,13 +43,16 @@ exports.deleteProject = async(req,res)=>{
         }
         const projectId = Mongoose.Types.ObjectId(req.body.projectId);
         const deletProjectDetails = await Project.findById({_id:projectId})
-        const imagename = deletProjectDetails.image.substring(deletProjectDetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
-        let image_id = "pms_project_image/"+imagename ;
+      
         if(!deletProjectDetails){
             return fail(res,{message:["Project not found..."]})
         }
+        if(deletProjectDetails.image){
+            const imagename = deletProjectDetails.image.substring(deletProjectDetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+            let image_id = "pms_project_image/"+imagename ;
+            await cloudinary.uploader.destroy(image_id);
+        }
         const deleteproject = await Project.findByIdAndRemove({_id:projectId})
-        await cloudinary.uploader.destroy(image_id);
         return success(res,{"message":"Project deleted successfully..."})
     } catch (error) {
         return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
@@ -78,7 +82,7 @@ exports.editproject = async(req,res)=>{
         if(req.file){
             const imageremove = await Project.findById(data.projectId)
             const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
-            let image_id = "pms_user_image/"+imagename ;
+            let image_id = "pms_project_image/"+imagename ;
             if(imageremove.image){
                 await cloudinary.uploader.destroy(image_id);    
             }

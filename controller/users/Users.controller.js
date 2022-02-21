@@ -28,8 +28,9 @@ exports.addUser=async(req,res)=>{
     if(validation.fails()){
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
     }
+    let imagedata
     if(req.file){
-    const imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_user_image"})
+         imagedata = await cloudinary.uploader.upload(req.file.path,params= {folder: "pms_user_image"})
     }
     const filename = req.file ? imagedata.url : "";
     const adduser =  new User({
@@ -61,10 +62,13 @@ exports.deleteUser=async(req,res)=>{
         if(!deleteuserdetails){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
-        const imagename = deleteuserdetails.image.substring(deleteuserdetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
-        let image_id = "pms_project_image/"+imagename ;
+        if(deleteuserdetails.image){
+            const imagename = deleteuserdetails.image.substring(deleteuserdetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+            let image_id = "pms_user_image/"+imagename ;
+            log
+            await cloudinary.uploader.destroy(image_id);            
+        }
         const deleteuser = await User.findByIdAndRemove(req.user._id)
-        await cloudinary.uploader.destroy(image_id);
         return success(res,{"message":"User deleted Successfully..."})
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
@@ -85,7 +89,8 @@ try {
         return fail(res,validation.errors.all(),httpCode.BAD_REQUEST);
     }
     const userdata = await User.findOne({email:data.email}).exec()
-        if(userdata.length < 1){
+    
+        if(!userdata){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
         const ismatch = await bcrypt.compare(data.password,userdata.password)
