@@ -21,4 +21,7 @@ router.route('/userlist').get(user.userDetails);
 
 router.route('/users/forgotpassword').put(user.tokenVerify,user.changepassword);
 
+
+
+
 module.exports = router;

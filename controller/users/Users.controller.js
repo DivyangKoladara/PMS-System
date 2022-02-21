@@ -57,18 +57,23 @@ exports.addUser=async(req,res)=>{
 
 exports.deleteUser=async(req,res)=>{   
     try {
-
-        const deleteuserdetails = await User.findById({_id:req.user._id})
+        let data = req.body
+        let rules = {}
+        rules.id ="required";
+        let validation = new Validator(data,rules)
+        if (validation.fails()){
+            return fail(req,validation.errors.all(),httpCode.BAD_REQUEST)
+        } 
+        const deleteuserdetails = await User.findById({_id:data.id})
         if(!deleteuserdetails){
             return fail(res,{message:["User not found..."]},httpCode.BAD_REQUEST)
         }
         if(deleteuserdetails.image){
             const imagename = deleteuserdetails.image.substring(deleteuserdetails.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
             let image_id = "pms_user_image/"+imagename ;
-            log
             await cloudinary.uploader.destroy(image_id);            
         }
-        const deleteuser = await User.findByIdAndRemove(req.user._id)
+        const deleteuser = await User.findByIdAndRemove(data.id)
         return success(res,{"message":"User deleted Successfully..."})
     } catch (error) {
         return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
