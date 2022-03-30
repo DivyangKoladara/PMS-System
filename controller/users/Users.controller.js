@@ -165,9 +165,9 @@ exports.edituser=async(req,res)=>{
         }
         if(req.file){
             const imageremove = await User.findById(data.userId)
-            const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
-            let image_id = "pms_user_image/"+imagename ;
             if(imageremove.image){
+                const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+                let image_id = "pms_user_image/"+imagename ;
                 await cloudinary.uploader.destroy(image_id);
             }
             const imagedata = await cloudinary.uploader.upload(req.file.path,params={folder: "pms_user_image"})
@@ -182,7 +182,10 @@ exports.edituser=async(req,res)=>{
         let updateStage  = await User.findByIdAndUpdate(data.userId,update)
         if(updateStage){
             return success(res,{"message":"Update data successfully..."})
-        }           
+        }  
+        if(!updateStage){
+            return fail(res,{message:["nathing to be change"]})
+        }         
     } catch (error) {
         return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
     }

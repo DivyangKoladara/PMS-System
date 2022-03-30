@@ -204,7 +204,7 @@ exports.taskWithProjectDetails=async(req,res)=>{
         },
         {
             $project:{
-                user_id:0,
+                
                 "UserDetails.password":0
             }
         }
