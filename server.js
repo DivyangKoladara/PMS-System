@@ -5,6 +5,12 @@ require('dotenv').config()
 const cors = require('cors');
 const port = process.env.PORT || 3000;
 
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger-output.json');
+
+app.use('/api-docs', swaggerUi.serve,swaggerUi.setup(swaggerDocument));
+
 mongoose.connect(process.env.MONGO_URL,
     { 
         
