@@ -242,7 +242,7 @@ exports.projectList=async(req,res)=>{
             },
             {
                 $project:{
-                    "assignUsers._id":0,
+                    // "assignUsers._id":0,
                     "assignUsers.image_id":0,
                     "assignUsers.status":0,
                     "assignUsers.role":0,
