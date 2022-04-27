@@ -17,7 +17,7 @@ router.route('/users/edit').put(upload.single('image'),user.tokenVerify,user.edi
 
 router.route('/auth/verify').get(user.tokenVerify,user.authUserDetails);
 
-router.route('/userlist').get(user.userDetails);
+router.route('/userlist').get(user.tokenVerify,user.userDetails);
 
 router.route('/users/forgotpassword').put(user.tokenVerify,user.changepassword);
 

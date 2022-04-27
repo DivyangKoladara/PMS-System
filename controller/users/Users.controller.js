@@ -179,7 +179,7 @@ exports.edituser=async(req,res)=>{
         if(validation.fails()){
             return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
-        let updateStage  = await User.findByIdAndUpdate(data.userId,update)
+        let updateStage  = await User.findByIdAndUpdate(data.userId,update,{runValidators: true})
         if(updateStage){
             return success(res,{"message":"Update data successfully..."})
         }  

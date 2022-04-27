@@ -6,10 +6,10 @@ const UserSchemam = require('../../models/Users.model')
 const cloudinary = require('../../services/imageupload/cloudinary')
 
 
-
 exports.createProject =  async (req,res)=>{  
     try{
-    
+        
+        let user = req.user
         let data = req.body;
         let rules= {
             name:"required",
@@ -28,6 +28,7 @@ exports.createProject =  async (req,res)=>{
                 name:req.body.name,
                 status:req.body.status,
                 image:filename,
+                user_id:user._id
             }) 
             await createProject.save();
             return success(res,{"message":"Project created successfully..."})    
