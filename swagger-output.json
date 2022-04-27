@@ -178,7 +178,13 @@
     "/userlist": {
       "get": {
         "description": "",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {}
       }
     },
@@ -444,6 +450,11 @@
         "description": "",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "schema": {
@@ -453,6 +464,9 @@
                   "example": "any"
                 },
                 "enddate": {
+                  "example": "any"
+                },
+                "project_id": {
                   "example": "any"
                 }
               }
@@ -469,7 +483,13 @@
     "/taskreport/list": {
       "get": {
         "description": "",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {}
       }
     }
