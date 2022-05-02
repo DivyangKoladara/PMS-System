@@ -3,7 +3,7 @@ const Mongoose = require('mongoose')
 const Validator = require('validatorjs')
 const { fail, httpCode, success } = require("../../services/helper");
 const { send } = require("express/lib/response");
-
+const moment = require('moment')
 
 
 exports.addtaskreport = async (req, res) => {
@@ -137,20 +137,36 @@ exports.filterdata = async (req, res) => {
     let data = req.body
     let user = req.user
     let taskdata;
+    let rules = {
+        startdate:'required',
+        enddate:'required',
+    }
+    console.log("project_id",data.project_id)
 
-    const startdate = new Date(data.startdate);
-    const enddate = new Date(data.enddate);
+    if(data.project_id){
+        rules["project_id"] = 'required'   
+    }
 
+    let validation = new Validator(data, rules)
+    if (validation.fails()) {
+        return fail(res, validation.errors.all(), httpCode.BAD_REQUEST)
+    }
+
+   
+    const startdate =data.startdate;
+    const enddate =data.enddate;
+
+   
     try {
-
+ 
         if (user.role === 'admin') {
             taskdata = await Task_ReposrtSchema.aggregate([
                 {
                     $match:
                     {
                         date: {
-                            $gte: startdate,
-                            $lte: enddate,
+                            $gte:  new Date(new Date(startdate).setHours(00, 00, 00)),
+                            $lte: new Date(new Date(enddate).setHours(23,59,59)),
                         }
                     }
                 },
@@ -172,10 +188,12 @@ exports.filterdata = async (req, res) => {
                 return fail(res,{message:["Task not found!"]},httpCode.BAD_REQUEST)
             }
 
+
+            
             return success(res, taskdata)
 
         } else if (data.project_id) {
-
+        
             taskdata = await Task_ReposrtSchema.aggregate([
                 {
                     $match: {
@@ -186,8 +204,8 @@ exports.filterdata = async (req, res) => {
                     $match:
                     {
                         date: {
-                            $gte: startdate,
-                            $lte: enddate,
+                            $gte:  new Date(new Date(startdate).setHours(00, 00, 00)),
+                            $lte: new Date(new Date(enddate).setHours(23,59,59)),
                         }
                     }
                 },
@@ -223,8 +241,8 @@ exports.filterdata = async (req, res) => {
                     $match:
                     {
                         date: {
-                            $gte: startdate,
-                            $lte: enddate,
+                            $gte:  new Date(new Date(startdate).setHours(00, 00, 00)),
+                            $lte: new Date(new Date(enddate).setHours(23,59,59)),
                         }
                     }
                 },
@@ -238,7 +256,8 @@ exports.filterdata = async (req, res) => {
                     }
                 },
                 {
-                    $unwind: "$userdetails"
+                    $unwind: "$userdetails",
+                    
                 }
             ]
             )
@@ -303,5 +322,42 @@ exports.taskWithProjectDetails = async (req, res) => {
         return fail(res, { message: [error.message] }, httpCode.BAD_REQUEST)
     }
 
-
 }
+
+
+
+
+// const nodemailer = require('nodemailer');
+
+
+// exports.email = async(req,res) =>{
+    
+//     let data = req.body
+
+
+//     const Admin = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//           user: 'divukoladara@gmail.com',
+//           pass: 'ykvtsvdmljewgxhk'
+//         }   
+//       });
+
+//     const client = {
+//         from: 'divukoladara@gmail.com',
+//         to: data.email,
+//         subject: 'Request for collabration',
+//         text: 'Please join our team'
+//       };
+
+//     Admin.sendMail(client,function(error,info){
+//         if(error){
+//             console.log(error.message)
+//             return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+//         }
+//         else{
+//             return success(res,'Email Sent:'+info.response)
+//         }
+//     })
+
+// }

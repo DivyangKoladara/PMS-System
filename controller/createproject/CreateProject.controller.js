@@ -301,11 +301,7 @@ exports.projectList=async(req,res)=>{
                         "assignUsers.email":0,  
                     }
                 },
-                // {
-                //     $match:{
-                //         "assignUsers._id":user._id
-                //     }
-                // }
+                
             ])
             if(data.length == 0){
                 return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
