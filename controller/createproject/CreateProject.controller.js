@@ -2,7 +2,7 @@ const Mongoose  = require("mongoose");
 const Validator = require("validatorjs");
 const Project = require("../../models/CreateProject.model");
 const { fail, httpCode, success } = require("../../services/helper");
-const UserSchemam = require('../../models/Users.model')
+const User = require('../../models/Users.model')
 const cloudinary = require('../../services/imageupload/cloudinary')
 
 
@@ -231,34 +231,88 @@ exports.projectAssignDetails=async(req,res)=>{
 
 exports.projectList=async(req,res)=>{
 
+    let user = req.user
+
+   
+
     try {
-        const data = await Project.aggregate([
-            {
-                $lookup:{
-                    from:"users",
-                    localField:"assignUsers.userId",
-                    foreignField:"_id",
-                    as:"assignUsers"
+
+        const userDetails = await User.find({_id:user._id}) 
+
+        if(userDetails[0].role === 'admin'){
+            const data = await Project.aggregate([
+                {
+                    $lookup:{
+                        from:"users",
+                        localField:"assignUsers.userId",
+                        foreignField:"_id",
+                        as:"assignUsers"
+                    }
+                },
+                {
+                    $project:{
+                        // "assignUsers._id":0,
+                        "assignUsers.image_id":0,
+                        "assignUsers.status":0,
+                        "assignUsers.role":0,
+                        "assignUsers.doj":0,
+                        "assignUsers.dob":0,
+                        "assignUsers.password":0,
+                        "assignUsers.phone":0,
+                        "assignUsers.email":0,
+                    }
                 }
-            },
-            {
-                $project:{
-                    // "assignUsers._id":0,
-                    "assignUsers.image_id":0,
-                    "assignUsers.status":0,
-                    "assignUsers.role":0,
-                    "assignUsers.doj":0,
-                    "assignUsers.dob":0,
-                    "assignUsers.password":0,
-                    "assignUsers.phone":0,
-                    "assignUsers.email":0,
-                }
+            ])
+            if(!data){
+                return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
             }
-        ])
-        if(!data){
-            return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
+            return success(res,data)
         }
-        return success(res,data)
+        else{
+            const data = await Project.aggregate([
+                {
+                    $match:{
+                        "assignUsers.userId":user._id
+                    }
+                },
+                {
+                    $lookup:{
+                        from:"users",
+                        localField:"assignUsers.userId",
+                        foreignField:"_id",
+                        as:"assignUsers",
+                        pipeline:[{
+                            $match:{
+                                "_id":user._id
+                            }
+                        }]
+                    }
+                },
+                {
+                    $project:{
+                        // "assignUsers._id":0,
+                        "assignUsers.image_id":0,
+                        "assignUsers.status":0,
+                        "assignUsers.role":0,
+                        "assignUsers.doj":0,
+                        "assignUsers.dob":0,
+                        "assignUsers.password":0,
+                        "assignUsers.phone":0,
+                        "assignUsers.email":0,  
+                    }
+                },
+                // {
+                //     $match:{
+                //         "assignUsers._id":user._id
+                //     }
+                // }
+            ])
+            if(data.length == 0){
+                return fail(res,{message:["Project not found..."]},httpCode.NOT_FOUND)
+            }
+            return success(res,data)
+        }
+        
     } catch (error) {
         return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
     }

@@ -144,7 +144,6 @@ exports.filterdata = async (req, res) => {
     try {
 
         if (user.role === 'admin') {
-            console.log('12')
             taskdata = await Task_ReposrtSchema.aggregate([
                 {
                     $match:
@@ -168,10 +167,15 @@ exports.filterdata = async (req, res) => {
                 }
             ]
             )
+
+            if(taskdata.length == 0){
+                return fail(res,{message:["Task not found!"]},httpCode.BAD_REQUEST)
+            }
+
             return success(res, taskdata)
 
         } else if (data.project_id) {
-            console.log('123')
+
             taskdata = await Task_ReposrtSchema.aggregate([
                 {
                     $match: {
@@ -201,10 +205,14 @@ exports.filterdata = async (req, res) => {
                 }
             ]
             )
+            if(taskdata.length == 0){
+                return fail(res,{message:["Task not found!"]})
+            }
+
             return success(res, taskdata)
         }
         else {
-            console.log("789")
+
             taskdata = await Task_ReposrtSchema.aggregate([
                 {
                     $match: {
@@ -234,10 +242,15 @@ exports.filterdata = async (req, res) => {
                 }
             ]
             )
+
+            if(taskdata.length == 0){
+                return fail(res,{message:["Task not found!"]})
+            }
+
             return res.send(taskdata)
         }
     } catch (error) {
-        console.log(error)
+        
         return fail(res,{message:[error.message]}, httpCode.BAD_REQUEST)
     }
 }
