@@ -15,6 +15,9 @@ router.route('/users/delete').post(user.tokenVerify,user.deleteUser);
 
 router.route('/users/edit').put(upload.single('image'),user.tokenVerify,user.edituser);
 
+router.route('/users/updateProfile').put(upload.single('image'),user.tokenVerify,user.updateUserProfile);
+
+
 router.route('/auth/verify').get(user.tokenVerify,user.authUserDetails);
 
 router.route('/userlist').get(user.tokenVerify,user.userDetails);

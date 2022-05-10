@@ -162,6 +162,43 @@
         "responses": {}
       }
     },
+    "/users/updateProfile": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstname": {
+                  "example": "any"
+                },
+                "lastname": {
+                  "example": "any"
+                },
+                "email": {
+                  "example": "any"
+                },
+                "phone": {
+                  "example": "any"
+                },
+                "dob": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
     "/auth/verify": {
       "get": {
         "description": "",
@@ -492,13 +529,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "project_id": {
+                  "example": "any"
+                },
                 "startdate": {
                   "example": "any"
                 },
                 "enddate": {
-                  "example": "any"
-                },
-                "project_id": {
                   "example": "any"
                 }
               }

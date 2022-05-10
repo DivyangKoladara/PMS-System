@@ -163,6 +163,10 @@ exports.edituser=async(req,res)=>{
             rules["status"]="required|boolean"
             
         }
+        let validation = new Validator(data,rules)
+        if(validation.fails()){
+            return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+        }
         if(req.file){
             const imageremove = await User.findById(data.userId)
             if(imageremove.image){
@@ -174,10 +178,6 @@ exports.edituser=async(req,res)=>{
             if(imagedata){
                 update['image']=imagedata.url
             }
-        }
-        let validation = new Validator(data,rules)
-        if(validation.fails()){
-            return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
         }
         let updateStage  = await User.findByIdAndUpdate(data.userId,update,{runValidators: true})
         if(updateStage){
@@ -191,6 +191,81 @@ exports.edituser=async(req,res)=>{
     }
     
 }
+
+
+exports.updateUserProfile=async(req,res)=>{
+
+    try {
+        const data = req.body
+        const user = req.user
+        let rules = {};
+        let update = {};
+        if(data.firstname){
+            update["firstname"]=data.firstname
+            rules["firstname"]="required"
+        }
+        if(data.lastname){
+            update["lastname"]=data.lastname
+            rules["lastname"]="required"
+        }
+        if(data.email){
+            update["email"]=data.email
+            rules["email"]="required|email"
+            
+        }
+        if(data.phone){
+            update['phone']=data.phone
+        }
+        // if(data.password){
+        //     update['password']=await(bcrypt.hash(data.password,10))
+        //     rules["password"]="required"
+    
+        // }
+        if(data.dob){
+            update['dob']=data.dob
+        }
+        // if(data.doj){
+        //     update['doj']=data.doj
+        // }
+        // if(data.role){
+        //     update['role']=data.role
+        //     rules["role"]="required"
+        // }
+        // if(data.status){
+        //     update['status']=data.status
+        //     rules["status"]="required|boolean"
+            
+        // }
+        let validation = new Validator(data,rules)
+        if(validation.fails()){
+            return fail(res,validation.errors.all(),httpCode.BAD_REQUEST)
+        }
+        if(req.file){
+            const imageremove = await User.findById(user._id)
+            if(imageremove.image){
+                const imagename = imageremove.image.substring(imageremove.image.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, "");
+                let image_id = "pms_user_image/"+imagename ;
+                await cloudinary.uploader.destroy(image_id);
+            }
+            const imagedata = await cloudinary.uploader.upload(req.file.path,params={folder: "pms_user_image"})
+            if(imagedata){
+                update['image']=imagedata.url
+            }
+        }
+        let updateStage  = await User.findByIdAndUpdate(user._id,update,{runValidators: true})
+        if(updateStage){
+            return success(res,{"message":"Update data successfully..."})
+        }  
+        if(!updateStage){
+            return fail(res,{message:["nathing to be change"]})
+        }         
+    } catch (error) {
+        return fail(res,{message:[error.message]},httpCode.BAD_REQUEST)
+    }
+    
+}
+
+
 
 exports.tokenVerify=async(req,res,next)=>{
 
