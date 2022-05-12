@@ -252,9 +252,11 @@ exports.updateUserProfile=async(req,res)=>{
                 update['image']=imagedata.url
             }
         }
-        let updateStage  = await User.findByIdAndUpdate(user._id,update,{runValidators: true})
+        
+        let updateStage  = await User.findByIdAndUpdate(user._id,update,{runValidators: true,new:true})
+
         if(updateStage){
-            return success(res,{"message":"Update data successfully..."})
+            return success(res,updateStage,{message:"Update data successfully..."},)
         }  
         if(!updateStage){
             return fail(res,{message:["nathing to be change"]})
