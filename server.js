@@ -32,6 +32,23 @@ app.use('/',require('./controller/createproject/index'))
 
 app.use('/taskreport',require('./controller/task/index'))
 
+app.post('/*',(req,res)=>{
+    res.status(400).send({message:"Rout not found!"})
+})
+
+app.get('/*',(req,res)=>{
+    res.status(400).send({message:"Rout not found!"})
+})
+
+app.delete('/*',(req,res)=>{
+    res.status(400).send({message:"Rout not found!"})
+})
+
+
+app.put('/*',(req,res)=>{
+    res.status(400).send({message:"Rout not found!"})
+})
+
 app.listen(port,()=>{console.log(`Server Stated on port ${port}`)})
 
 
