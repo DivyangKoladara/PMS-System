@@ -311,6 +311,9 @@
                 },
                 "status": {
                   "example": "any"
+                },
+                "userId": {
+                  "example": "any"
                 }
               }
             }
@@ -369,6 +372,9 @@
                   "example": "any"
                 },
                 "status": {
+                  "example": "any"
+                },
+                "userId": {
                   "example": "any"
                 }
               }

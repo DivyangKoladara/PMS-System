@@ -36,8 +36,8 @@ exports.createProject = async (req, res) => {
 
         let projectId = createProject['_id']
         if (createProject['_id']) {
-            if (data.user === 'add') {
-                if (data.userId) {
+            if(data.userId){
+                if (JSON.parse(data.userId).length > 0) {
                     let users = JSON.parse(data.userId)
                     let arraywithkey = []
                     users.map(async (user) => {
@@ -47,7 +47,7 @@ exports.createProject = async (req, res) => {
                         // }})
                     })
                     const addelement = await Project.updateOne({ _id: projectId }, { assignUsers: arraywithkey })
-                }
+                }   
             }
         }
         return success(res, { "message": "Project created successfully..." })
@@ -119,21 +119,21 @@ exports.editproject = async (req, res) => {
         if (!findproject) {
             return fail(res, { message: ["Project not found..."] }, httpCode.BAD_REQUEST)
         }
-        if (data.userId) {
 
-            let users = JSON.parse(data.userId)
-            let arraywithkey = []
-            users.map(async (user) => {
-                arraywithkey.push({ userId: Mongoose.Types.ObjectId(user) })
-                // const addelement = await Project.updateOne({_id:projectId},{$push:{
-                // assignUsers:[{userId:user}]
-                // }})
-            })
-            update['assignUsers'] = arraywithkey
+        if(data.userId){
+            if (JSON.parse(data.userId).length > 0) {
+                let users = JSON.parse(data.userId)
+                let arraywithkey = []
+                users.map(async (user) => {
+                    arraywithkey.push({ userId: Mongoose.Types.ObjectId(user) })
+                    // const addelement = await Project.updateOne({_id:projectId},{$push:{
+                    // assignUsers:[{userId:user}]
+                    // }})
+                })
+                update['assignUsers'] = arraywithkey
+            }
+            const editProject = await Project.findByIdAndUpdate(data.projectId, update)
         }
-
-
-        const editProject = await Project.findByIdAndUpdate(data.projectId, update)
         return success(res, { message: "Data Upadated successfully..." })
     } catch (error) {
         return fail(res, { message: [error.massage] }, httpCode.BAD_REQUEST)
