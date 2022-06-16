@@ -26,12 +26,16 @@ app.use('/upload',express.static('upload'));
 
 app.use(express.json());
 
+//routs
+
 app.use('/',require('./controller/users/index'))
-
 app.use('/',require('./controller/createproject/index'))
-
 app.use('/taskreport',require('./controller/task/index'))
+app.use('/',require('./controller/leave/index'))
 
+
+
+// rout not found
 app.post('/*',(req,res)=>{
     res.status(400).send({message:"Rout not found!"})
 })

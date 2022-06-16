@@ -6,21 +6,22 @@ exports.success = function(res, payload, extra) {
     });
 }
 
-exports.fail =function (res,error,status= 500){
-        let message = "";
-        if (typeof error === 'object') {    
-            if(Object.keys(error)[0]){
-                message = error[ Object.keys(error)[ 0 ] ][0];
-            }    
-        } 
-        if (typeof error === 'String') { 
-            message = error;
-            
+exports.fail = function (res, error, status = 500) {
+    let message = "";
+    if (typeof error === 'object') {
+        if (Object.keys(error)[0]) {
+            message = error[Object.keys(error)[0]][0];
         }
-        return res.status(status).json({
-            status:false,
-            message:message
-        }) ;
+    }
+    if (typeof error === 'string') {
+        message = error;
+    }
+
+
+    return res.status(status).json({
+        status: false,
+        message: message
+    });
 }
 
 exports.httpCode = {

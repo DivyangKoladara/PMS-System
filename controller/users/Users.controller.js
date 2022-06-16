@@ -291,7 +291,9 @@ exports.tokenVerify=async(req,res,next)=>{
                 }
                 req.user = displaydata ;
                 next();
+
         } catch (error) {
+            console.log("dfjkisjdkfjk")
             return fail(res,{"message":[error.message]},httpCode.BAD_REQUEST)
         }
     }
